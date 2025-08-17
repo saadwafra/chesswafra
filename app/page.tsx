@@ -58,8 +58,22 @@ function AnimatedChessBackground() {
       }}
     >
       {/* 3D Tilted Chessboard with camera animation */}
-  {/* Optionally, you can restore a 2D ChessBoard here or remove the board entirely */}
-  {/* <ChessBoard moves={animatedMoves} /> */}
+      <div style={{
+        width: 400,
+        height: 400,
+        maxWidth: '80vw',
+        maxHeight: '80vw',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        boxShadow: '0 0 80px 0 #fff2',
+        borderRadius: 16,
+        background: 'rgba(30,30,40,0.18)',
+        backdropFilter: 'blur(2px)',
+        margin: '0 auto',
+      }}>
+        <ChessBoard moves={animatedMoves} />
+      </div>
       {/* Bishop and Knight float relative to hero section, not the board */}
       {Bishop}
       {Knight}
