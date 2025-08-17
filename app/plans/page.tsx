@@ -1,7 +1,9 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
+import gsap from 'gsap';
 import { Navbar } from '@/components/Navbar';
+import AnimatedChessBackground from '@/components/AnimatedChessBackground';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -10,6 +12,31 @@ import Link from 'next/link';
 
 export default function Plans() {
   const [isYearly, setIsYearly] = useState(false);
+  // Animation refs
+  const headerRef = useRef<HTMLDivElement>(null);
+  const h1Ref = useRef<HTMLHeadingElement>(null);
+  const planGridRef = useRef<HTMLDivElement>(null);
+  const featureRef = useRef<HTMLDivElement>(null);
+  const btnRefs = useRef<(HTMLButtonElement | null)[]>([]);
+
+  useEffect(() => {
+    const tl = gsap.timeline();
+    if (headerRef.current) {
+      tl.fromTo(headerRef.current, { opacity: 0, y: 60, filter: 'blur(8px)' }, { opacity: 1, y: 0, filter: 'blur(0px)', duration: 1.1, ease: 'power4.out' });
+    }
+    if (h1Ref.current) {
+      tl.fromTo(h1Ref.current, { opacity: 0, y: 80, letterSpacing: '0.5em', filter: 'blur(8px)' }, { opacity: 1, y: 0, letterSpacing: '0.02em', filter: 'blur(0px)', duration: 1.2, ease: 'power4.out' }, '-=0.7');
+    }
+    if (planGridRef.current) {
+      tl.fromTo(planGridRef.current.children, { opacity: 0, y: 60, filter: 'blur(8px)' }, { opacity: 1, y: 0, filter: 'blur(0px)', duration: 1.1, stagger: 0.13, ease: 'power3.out' }, '-=0.8');
+    }
+    if (featureRef.current) {
+      tl.fromTo(featureRef.current, { opacity: 0, y: 60, filter: 'blur(8px)' }, { opacity: 1, y: 0, filter: 'blur(0px)', duration: 1.1, ease: 'power3.out' }, '-=0.7');
+    }
+    if (btnRefs.current.length) {
+      tl.fromTo(btnRefs.current, { opacity: 0, y: 60, scale: 0.8, filter: 'blur(8px)' }, { opacity: 1, y: 0, scale: 1, filter: 'blur(0px)', duration: 1.1, stagger: 0.1, ease: 'back.out(1.7)' }, '-=0.8');
+    }
+  }, []);
 
   const plans = [
     {
@@ -76,15 +103,15 @@ export default function Plans() {
 
   const [selected, setSelected] = useState<number | null>(null);
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 relative overflow-hidden">
+      <AnimatedChessBackground />
       <Navbar />
-      
       <div className="pt-24 pb-16 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
           {/* Header */}
-          <div className="text-center mb-12">
-            <h1 className="text-4xl md:text-6xl font-bold text-white mb-6">
-              Choose Your
+          <div className="text-center mb-12" ref={headerRef}>
+            <h1 ref={h1Ref} className="text-4xl md:text-6xl font-bold text-white mb-6 movie-title-shadow">
+              <span>Choose Your</span>
               <span className="text-amber-400 block">Training Plan</span>
             </h1>
             <p className="text-xl text-white/70 max-w-3xl mx-auto mb-8">
@@ -121,7 +148,7 @@ export default function Plans() {
           </div>
 
           {/* Plans Grid */}
-          <div className="grid md:grid-cols-3 gap-8 mb-16">
+          <div className="grid md:grid-cols-3 gap-8 mb-16" ref={planGridRef}>
             {plans.map((plan, index) => {
               const IconComponent = plan.icon;
               const price = isYearly ? plan.price.yearly : plan.price.monthly;
@@ -133,7 +160,7 @@ export default function Plans() {
                   tabIndex={0}
                   onClick={() => setSelected(index)}
                   onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') setSelected(index); }}
-                  className={`relative overflow-hidden transition-all duration-300 cursor-pointer focus:outline-none hover:scale-105
+                  className={`relative overflow-hidden transition-all duration-500 cursor-pointer focus:outline-none hover:scale-105
                     ${plan.popular
                       ? `bg-gradient-to-br from-zinc-800/90 to-zinc-900/90 border-amber-700/40 ring-2 ring-amber-700/40 text-amber-200
                           ${selected === index ? 'scale-105 shadow-2xl border-amber-700 ring-4 ring-amber-700' : ''}`
@@ -151,26 +178,18 @@ export default function Plans() {
                     </div>
                   )}
 
-                    <CardHeader className={`${plan.popular ? 'pt-12' : 'pt-6'} ${plan.popular ? 'text-amber-200' : ''}`}>
+                  <CardHeader className={`${plan.popular ? 'pt-12' : 'pt-6'} ${plan.popular ? 'text-amber-200' : ''}`}> 
                     <div className="flex items-center justify-center mb-4">
-                      <div className={`w-16 h-16 rounded-full flex items-center justify-center ${
-                        plan.popular ? 'bg-amber-500/30' : 'bg-white/10'
-                      }`}>
-                        <IconComponent className={`h-8 w-8 ${
-                          plan.popular ? 'text-amber-400' : 'text-white'
-                        }`} />
+                      <div className={`w-16 h-16 rounded-full flex items-center justify-center ${plan.popular ? 'bg-amber-500/30' : 'bg-white/10'}`}> 
+                        <IconComponent className={`h-8 w-8 ${plan.popular ? 'text-amber-400' : 'text-white'}`} />
                       </div>
                     </div>
-                    
                     <CardTitle className={`text-2xl font-bold text-center ${plan.popular ? 'text-amber-200' : 'text-amber-200'}`}>
                       {plan.name}
                     </CardTitle>
-                    
                     <div className="text-center">
                       <div className="flex items-baseline justify-center">
-                        <span className="text-4xl font-bold text-white">
-                          ${price}
-                        </span>
+                        <span className="text-4xl font-bold text-white">${price}</span>
                         {price > 0 && (
                           <span className="text-white/60 ml-1">/{period}</span>
                         )}
@@ -181,7 +200,6 @@ export default function Plans() {
                         </div>
                       )}
                     </div>
-                    
                     <p className="text-white/70 text-center mt-2">
                       {plan.description}
                     </p>
@@ -195,7 +213,6 @@ export default function Plans() {
                           <span className="text-white/80">{feature}</span>
                         </div>
                       ))}
-                      
                       {plan.limitations.map((limitation, limitIndex) => (
                         <div key={limitIndex} className="flex items-start space-x-3 opacity-60">
                           <div className="w-5 h-5 flex-shrink-0 mt-0.5" />
@@ -203,9 +220,9 @@ export default function Plans() {
                         </div>
                       ))}
                     </div>
-
                     <Link href={price === 0 ? "/signup" : `/signup?plan=${plan.name.toLowerCase()}`}>
                       <Button 
+                        ref={el => btnRefs.current[index] = el}
                         className={`w-full py-3 text-lg font-medium transition-all duration-300 ${
                           plan.popular
                             ? 'bg-amber-800/80 hover:bg-amber-700/80 text-amber-100 border border-amber-700/40'
@@ -222,55 +239,38 @@ export default function Plans() {
           </div>
 
           {/* Features Comparison */}
-          <div className="bg-white/5 backdrop-blur-sm border-white/10 rounded-xl p-8">
-            <h2 className="text-2xl font-bold text-white text-center mb-8">
-              Why Choose ChessReps?
-            </h2>
-            
+          <div className="bg-white/5 backdrop-blur-sm border-white/10 rounded-xl p-8" ref={featureRef}>
+            <h2 className="text-2xl font-bold text-white text-center mb-8"><span>Why Choose ChessReps?</span></h2>
             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
               <div className="text-center">
                 <BookOpen className="h-12 w-12 text-amber-400 mx-auto mb-4" />
-                <h3 className="text-lg font-semibold text-white mb-2">
-                  Comprehensive Database
-                </h3>
-                <p className="text-white/70 text-sm">
-                  Access thousands of chess openings, tactics, and endgames
-                </p>
+                <h3 className="text-lg font-semibold text-white mb-2">Comprehensive Database</h3>
+                <p className="text-white/70 text-sm">Access thousands of chess openings, tactics, and endgames</p>
               </div>
-              
               <div className="text-center">
                 <Zap className="h-12 w-12 text-blue-400 mx-auto mb-4" />
-                <h3 className="text-lg font-semibold text-white mb-2">
-                  Spaced Repetition
-                </h3>
-                <p className="text-white/70 text-sm">
-                  Learn efficiently with scientifically-proven methods
-                </p>
+                <h3 className="text-lg font-semibold text-white mb-2">Spaced Repetition</h3>
+                <p className="text-white/70 text-sm">Learn efficiently with scientifically-proven methods</p>
               </div>
-              
               <div className="text-center">
                 <Trophy className="h-12 w-12 text-green-400 mx-auto mb-4" />
-                <h3 className="text-lg font-semibold text-white mb-2">
-                  Progress Tracking
-                </h3>
-                <p className="text-white/70 text-sm">
-                  Monitor your improvement with detailed analytics
-                </p>
+                <h3 className="text-lg font-semibold text-white mb-2">Progress Tracking</h3>
+                <p className="text-white/70 text-sm">Monitor your improvement with detailed analytics</p>
               </div>
-              
               <div className="text-center">
                 <Users className="h-12 w-12 text-purple-400 mx-auto mb-4" />
-                <h3 className="text-lg font-semibold text-white mb-2">
-                  Community
-                </h3>
-                <p className="text-white/70 text-sm">
-                  Join thousands of chess players improving together
-                </p>
+                <h3 className="text-lg font-semibold text-white mb-2">Community</h3>
+                <p className="text-white/70 text-sm">Join thousands of chess players improving together</p>
               </div>
             </div>
           </div>
         </div>
       </div>
+      <style>{`
+        .movie-title-shadow {
+          text-shadow: 0 8px 32px #000, 0 1px 0 #fff2, 0 0px 40px #eab30844;
+        }
+      `}</style>
     </div>
   );
 }

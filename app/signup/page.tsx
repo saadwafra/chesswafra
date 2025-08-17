@@ -1,13 +1,16 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
+import gsap from 'gsap';
 import Link from 'next/link';
 import { Navbar } from '@/components/Navbar';
+import AnimatedChessBackground from '@/components/AnimatedChessBackground';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Crown, Mail, Lock, User, Eye, EyeOff } from 'lucide-react';
+
 
 export default function SignUp() {
   const [showPassword, setShowPassword] = useState(false);
@@ -19,6 +22,24 @@ export default function SignUp() {
     confirmPassword: ''
   });
 
+  // Animation refs
+  const headerRef = useRef<HTMLDivElement>(null);
+  const cardRef = useRef<HTMLDivElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    const tl = gsap.timeline();
+    if (headerRef.current) {
+      tl.fromTo(headerRef.current, { opacity: 0, y: 60, filter: 'blur(8px)' }, { opacity: 1, y: 0, filter: 'blur(0px)', duration: 1, ease: 'power4.out' });
+    }
+    if (cardRef.current) {
+      tl.fromTo(cardRef.current, { opacity: 0, y: 60, filter: 'blur(8px)' }, { opacity: 1, y: 0, filter: 'blur(0px)', duration: 1, ease: 'power3.out' }, '-=0.7');
+    }
+    if (buttonRef.current) {
+      tl.fromTo(buttonRef.current, { opacity: 0, scale: 0.95, filter: 'blur(8px)' }, { opacity: 1, scale: 1, filter: 'blur(0px)', duration: 0.7, ease: 'power3.out' }, '-=0.6');
+    }
+  }, []);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     // Handle sign up logic here
@@ -26,27 +47,27 @@ export default function SignUp() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 relative overflow-hidden">
+      <AnimatedChessBackground />
       <Navbar />
-      
       <div className="pt-24 pb-16 px-4 sm:px-6 lg:px-8">
         <div className="max-w-md mx-auto">
-          <div className="text-center mb-8">
+          <div className="text-center mb-8" ref={headerRef}>
             <Crown className="h-16 w-16 text-amber-400 mx-auto mb-4 animate-pulse" />
             <h1 className="text-3xl font-bold text-white mb-2">Join ChessReps</h1>
             <p className="text-white/70">Start your chess improvement journey today</p>
           </div>
+          <div ref={cardRef}>
+            <Card className="bg-white/5 backdrop-blur-sm border-white/10">
+              <CardHeader className="space-y-1">
+                <CardTitle className="text-2xl text-center text-white">Create Account</CardTitle>
+                <CardDescription className="text-center text-white/60">
+                  Enter your details to get started
+                </CardDescription>
+              </CardHeader>
 
-          <Card className="bg-white/5 backdrop-blur-sm border-white/10">
-            <CardHeader className="space-y-1">
-              <CardTitle className="text-2xl text-center text-white">Create Account</CardTitle>
-              <CardDescription className="text-center text-white/60">
-                Enter your details to get started
-              </CardDescription>
-            </CardHeader>
-
-            <CardContent>
-              <form onSubmit={handleSubmit} className="space-y-4">
+              <CardContent>
+                <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="name" className="text-white/80">Full Name</Label>
                   <div className="relative">
@@ -145,6 +166,7 @@ export default function SignUp() {
                 </div>
 
                 <Button 
+                  ref={buttonRef}
                   type="submit" 
                   className="w-full bg-amber-500 hover:bg-amber-600 text-black font-medium py-2"
                 >
@@ -181,8 +203,9 @@ export default function SignUp() {
                   Sign in
                 </Link>
               </p>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          </div>
         </div>
       </div>
     </div>

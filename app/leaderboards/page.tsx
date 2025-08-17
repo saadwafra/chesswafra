@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
+import gsap from 'gsap';
 import { Navbar } from '@/components/Navbar';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -8,8 +9,24 @@ import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Trophy, Medal, Award, Crown, TrendingUp, Calendar, Users, Target } from 'lucide-react';
 
-export default function Leaderboards() {
+export default function LeaderboardsPage() {
   const [activeTab, setActiveTab] = useState('all-time');
+  const headerRef = useRef<HTMLDivElement>(null);
+  const statsRef = useRef<HTMLDivElement>(null);
+  const leaderboardRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const tl = gsap.timeline();
+    if (headerRef.current) {
+      tl.fromTo(headerRef.current, { opacity: 0, y: 60, filter: 'blur(8px)' }, { opacity: 1, y: 0, filter: 'blur(0px)', duration: 1.1, ease: 'power4.out' });
+    }
+    if (statsRef.current) {
+      tl.fromTo(statsRef.current.children, { opacity: 0, y: 60, filter: 'blur(8px)' }, { opacity: 1, y: 0, filter: 'blur(0px)', duration: 1.1, stagger: 0.13, ease: 'power3.out' }, '-=0.7');
+    }
+    if (leaderboardRef.current) {
+      tl.fromTo(leaderboardRef.current, { opacity: 0, y: 60, filter: 'blur(8px)' }, { opacity: 1, y: 0, filter: 'blur(0px)', duration: 1.1, ease: 'power3.out' }, '-=0.7');
+    }
+  }, [activeTab]);
 
   const leaderboardData = {
     'all-time': [
@@ -73,11 +90,10 @@ export default function Leaderboards() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
       <Navbar />
-      
       <div className="pt-24 pb-16 px-4 sm:px-6 lg:px-8">
         <div className="max-w-6xl mx-auto">
           {/* Header */}
-          <div className="text-center mb-12">
+          <div className="text-center mb-12" ref={headerRef}>
             <h1 className="text-4xl md:text-6xl font-bold text-white mb-6">
               <Trophy className="inline-block h-16 w-16 text-amber-400 mr-4" />
               Leaderboards
@@ -88,7 +104,7 @@ export default function Leaderboards() {
           </div>
 
           {/* Stats Cards */}
-          <div className="grid md:grid-cols-3 gap-6 mb-8">
+          <div className="grid md:grid-cols-3 gap-6 mb-8" ref={statsRef}>
             <Card className="bg-white/5 backdrop-blur-sm border-white/10">
               <CardContent className="p-6 text-center">
                 <Users className="h-12 w-12 text-blue-400 mx-auto mb-4" />
@@ -96,7 +112,6 @@ export default function Leaderboards() {
                 <p className="text-white/70">Active Players</p>
               </CardContent>
             </Card>
-
             <Card className="bg-white/5 backdrop-blur-sm border-white/10">
               <CardContent className="p-6 text-center">
                 <Target className="h-12 w-12 text-green-400 mx-auto mb-4" />
@@ -104,7 +119,6 @@ export default function Leaderboards() {
                 <p className="text-white/70">Problems Solved</p>
               </CardContent>
             </Card>
-
             <Card className="bg-white/5 backdrop-blur-sm border-white/10">
               <CardContent className="p-6 text-center">
                 <TrendingUp className="h-12 w-12 text-amber-400 mx-auto mb-4" />
@@ -138,67 +152,65 @@ export default function Leaderboards() {
           </div>
 
           {/* Leaderboard */}
-          <Card className="bg-white/5 backdrop-blur-sm border-white/10">
-            <CardHeader>
-              <CardTitle className="text-white text-2xl flex items-center">
-                <Trophy className="h-6 w-6 mr-2 text-amber-400" />
-                {tabs.find(tab => tab.id === activeTab)?.label} Rankings
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {currentData.map((player, index) => (
-                  <div
-                    key={player.rank}
-                    className={`flex items-center justify-between p-4 rounded-lg border transition-all duration-300 hover:scale-[1.02] ${getRankBg(player.rank)}`}
-                  >
-                    <div className="flex items-center space-x-4">
-                      <div className="flex items-center justify-center w-12 h-12">
-                        {getRankIcon(player.rank)}
-                      </div>
-                      
-                      <Avatar className="h-12 w-12 border-2 border-white/20">
-                        <AvatarImage src={player.avatar} />
-                        <AvatarFallback>{player.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
-                      </Avatar>
-
-                      <div>
-                        <div className="flex items-center space-x-2">
-                          <h3 className="text-lg font-semibold text-white">{player.name}</h3>
-                          <span className="text-lg">{player.country}</span>
-                          <Badge className="bg-purple-500/20 text-purple-400 border-purple-500/50">
-                            {player.badge}
-                          </Badge>
+          <div ref={leaderboardRef}>
+            <Card className="bg-white/5 backdrop-blur-sm border-white/10">
+              <CardHeader>
+                <CardTitle className="text-white text-2xl flex items-center">
+                  <Trophy className="h-6 w-6 mr-2 text-amber-400" />
+                  {tabs.find(tab => tab.id === activeTab)?.label} Rankings
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {currentData.map((player, index) => (
+                    <div
+                      key={player.rank}
+                      className={`flex items-center justify-between p-4 rounded-lg border transition-all duration-300 hover:scale-[1.02] ${getRankBg(player.rank)}`}
+                    >
+                      <div className="flex items-center space-x-4">
+                        <div className="flex items-center justify-center w-12 h-12">
+                          {getRankIcon(player.rank)}
                         </div>
-                        <p className="text-white/60 text-sm">
-                          {player.solved.toLocaleString()} problems solved
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="text-right">
-                      <div className="text-2xl font-bold text-white mb-1">
-                        {player.rating}
-                      </div>
-                      <div className="flex items-center space-x-4 text-sm text-white/60">
-                        <div className="flex items-center">
-                          <TrendingUp className="h-3 w-3 mr-1" />
-                          {player.streak} day streak
+                        <Avatar className="h-12 w-12 border-2 border-white/20">
+                          <AvatarImage src={player.avatar} />
+                          <AvatarFallback>{player.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
+                        </Avatar>
+                        <div>
+                          <div className="flex items-center space-x-2">
+                            <h3 className="text-lg font-semibold text-white">{player.name}</h3>
+                            <span className="text-lg">{player.country}</span>
+                            <Badge className="bg-purple-500/20 text-purple-400 border-purple-500/50">
+                              {player.badge}
+                            </Badge>
+                          </div>
+                          <p className="text-white/60 text-sm">
+                            {player.solved.toLocaleString()} problems solved
+                          </p>
                         </div>
                       </div>
+                      <div className="text-right">
+                        <div className="text-2xl font-bold text-white mb-1">
+                          {player.rating}
+                        </div>
+                        <div className="flex items-center space-x-4 text-sm text-white/60">
+                          <div className="flex items-center">
+                            <TrendingUp className="h-3 w-3 mr-1" />
+                            {player.streak} day streak
+                          </div>
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                ))}
-              </div>
-
-              <div className="text-center mt-8">
-                <p className="text-white/60 mb-4">Want to see your name here?</p>
-                <Button className="bg-amber-500 hover:bg-amber-600 text-black font-medium">
-                  Start Training Now
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
+                  ))}
+                </div>
+                <div className="text-center mt-8">
+                  <p className="text-white/60 mb-4">Want to see your name here?</p>
+                  <Button className="bg-amber-500 hover:bg-amber-600 text-black font-medium">
+                    Start Training Now
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         </div>
       </div>
     </div>

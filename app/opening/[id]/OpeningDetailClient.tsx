@@ -28,6 +28,7 @@ function coordsToMove(from: [number, number], to: [number, number]): string {
 }
 // ...existing code...
 import React, { useState, useEffect, useRef } from 'react';
+import gsap from 'gsap';
 import { ChessBoard } from '@/components/ChessBoard';
 import { GameAnalysis } from '@/components/GameAnalysis';
 import { Button } from '@/components/ui/button';
@@ -50,27 +51,40 @@ export default function OpeningDetailClient({ id }: OpeningDetailClientProps) {
   const [userInput, setUserInput] = useState('');
   const [autoPlayComplete, setAutoPlayComplete] = useState(false);
 
+  // Animation refs
+  const headerRef = useRef<HTMLDivElement>(null);
+  const cardRef = useRef<HTMLDivElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
+
+  // Only animate cards and text, not the background
+    // Cinematic homepage-style animation for all cards and headings
+    useEffect(() => {
+      const tl = gsap.timeline();
+      // Animate all major headings
+      const headingEls = document.querySelectorAll('.opening-heading-animate');
+      if (headingEls.length) {
+        tl.fromTo(headingEls,
+          { opacity: 0, y: 80, filter: 'blur(12px)' },
+          { opacity: 1, y: 0, filter: 'blur(0px)', duration: 1.15, stagger: 0.12, ease: 'power4.out' }
+        );
+      }
+      // Animate all cards
+      const cardEls = document.querySelectorAll('.opening-card-animate');
+      if (cardEls.length) {
+        tl.fromTo(cardEls,
+          { opacity: 0, y: 60, filter: 'blur(10px)' },
+          { opacity: 1, y: 0, filter: 'blur(0px)', duration: 1.05, stagger: 0.13, ease: 'power3.out' },
+          '-=0.7'
+        );
+      }
+    }, [id]);
+
   const opening = chessOpenings[id] || chessOpenings['vienna-gambit'];
   const currentMoves = showCompleteGame ? opening.completeGame || opening.moves : opening.moves;
   const isCompleteGame = showCompleteGame && opening.completeGame && opening.completeGame.length > 0;
 
-  // Allow autoplay in both modes
-  useEffect(() => {
-    let interval: NodeJS.Timeout;
-    if (isAutoPlaying && currentMoveIndex < currentMoves.length - 1) {
-      interval = setInterval(() => {
-        setCurrentMoveIndex(prev => {
-          if (prev >= currentMoves.length - 1) {
-            setIsAutoPlaying(false);
-            return prev;
-          }
-          return prev + 1;
-        });
-      }, 1500);
-    }
-    return () => clearInterval(interval);
-  }, [isAutoPlaying, currentMoveIndex, currentMoves.length]);
 
+  // Handlers for controls
   const resetGame = () => {
     setCurrentMoveIndex(0);
     setIsAutoPlaying(false);
@@ -80,21 +94,15 @@ export default function OpeningDetailClient({ id }: OpeningDetailClientProps) {
     setUserInput('');
   };
 
-  // For complete game mode, user must input the correct move
-  const nextMove = () => {
-    if (isCompleteGame) {
-      setShowHint(false);
-      setShowExplanation(false);
-      setUserInput('');
-    }
-    if (currentMoveIndex < currentMoves.length - 1) {
-      setCurrentMoveIndex(prev => prev + 1);
-    }
-  };
-
   const prevMove = () => {
     if (currentMoveIndex > 0) {
       setCurrentMoveIndex(prev => prev - 1);
+    }
+  };
+
+  const nextMove = () => {
+    if (currentMoveIndex < currentMoves.length - 1) {
+      setCurrentMoveIndex(prev => prev + 1);
     }
   };
 
@@ -163,7 +171,7 @@ export default function OpeningDetailClient({ id }: OpeningDetailClientProps) {
   return (
     <>
       {/* Header */}
-      <div className="mb-8">
+      <div className="mb-8 opening-heading-animate">
         <div className="flex items-center gap-2 mb-4">
           <Badge className="bg-amber-500/20 text-amber-400 border-amber-500/50">
             {opening.category}
@@ -182,8 +190,8 @@ export default function OpeningDetailClient({ id }: OpeningDetailClientProps) {
             {opening.gameResult}
           </Badge>
         </div>
-        <h1 className="text-4xl font-bold text-white mb-4">{opening.title}</h1>
-        <p className="text-xl text-white/70 max-w-4xl">{opening.description}</p>
+  <h1 className="text-4xl font-bold text-white mb-4 opening-heading-animate">{opening.title}</h1>
+  <p className="text-xl text-white/70 max-w-4xl opening-heading-animate">{opening.description}</p>
       </div>
 
       <div className="grid lg:grid-cols-3 gap-8">
@@ -213,7 +221,7 @@ export default function OpeningDetailClient({ id }: OpeningDetailClientProps) {
             </div>
           </div>
 
-          <Card className="bg-white/5 backdrop-blur-sm border-white/10">
+          <Card className="bg-white/5 backdrop-blur-sm border-white/10 opening-card-animate">
             <CardHeader>
               <CardTitle className="text-white flex items-center">
                 <Target className="h-5 w-5 mr-2 text-amber-400" />
@@ -352,7 +360,7 @@ export default function OpeningDetailClient({ id }: OpeningDetailClientProps) {
           </Card>
 
           {/* Current Move Analysis */}
-          <Card className="bg-white/5 backdrop-blur-sm border-white/10 mt-8">
+          <Card className="bg-white/5 backdrop-blur-sm border-white/10 mt-8 opening-card-animate">
             <CardHeader>
               <CardTitle className="text-white flex items-center">
                 <BookOpen className="h-5 w-5 mr-2" />
@@ -409,7 +417,7 @@ export default function OpeningDetailClient({ id }: OpeningDetailClientProps) {
           <GameAnalysis opening={opening} />
           {/* Master Games */}
           {opening.masterGames && opening.masterGames.length > 0 && (
-            <Card className="bg-white/5 backdrop-blur-sm border-white/10">
+            <Card className="bg-white/5 backdrop-blur-sm border-white/10 opening-card-animate">
               <CardHeader>
                 <CardTitle className="text-white flex items-center">
                   <Trophy className="h-5 w-5 mr-2 text-yellow-400" />
