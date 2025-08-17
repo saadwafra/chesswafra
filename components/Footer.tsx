@@ -7,7 +7,7 @@ export default function Footer() {
 			<div className="text-white/80 text-sm mb-2">
 				All Rights Reserved ©️ 2025 ChessReps | Powered by
 				<a
-					href="https://wafra.com/"
+					href="https://wafra.net/"
 					target="_blank"
 					rel="noopener noreferrer"
 					className="inline-flex items-center group ml-1"
