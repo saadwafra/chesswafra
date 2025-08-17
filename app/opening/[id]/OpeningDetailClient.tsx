@@ -1,3 +1,4 @@
+
 "use client";
 // ...existing code...
 // Helper: parse move string to board coordinates
@@ -57,31 +58,53 @@ export default function OpeningDetailClient({ id }: OpeningDetailClientProps) {
   const buttonRef = useRef<HTMLButtonElement>(null);
 
   // Only animate cards and text, not the background
-    // Cinematic homepage-style animation for all cards and headings
-    useEffect(() => {
-      const tl = gsap.timeline();
-      // Animate all major headings
-      const headingEls = document.querySelectorAll('.opening-heading-animate');
-      if (headingEls.length) {
-        tl.fromTo(headingEls,
-          { opacity: 0, y: 80, filter: 'blur(12px)' },
-          { opacity: 1, y: 0, filter: 'blur(0px)', duration: 1.15, stagger: 0.12, ease: 'power4.out' }
-        );
-      }
-      // Animate all cards
-      const cardEls = document.querySelectorAll('.opening-card-animate');
-      if (cardEls.length) {
-        tl.fromTo(cardEls,
-          { opacity: 0, y: 60, filter: 'blur(10px)' },
-          { opacity: 1, y: 0, filter: 'blur(0px)', duration: 1.05, stagger: 0.13, ease: 'power3.out' },
-          '-=0.7'
-        );
-      }
-    }, [id]);
+  // Cinematic homepage-style animation for all cards and headings
+  useEffect(() => {
+    const tl = gsap.timeline();
+    // Animate all major headings
+    const headingEls = document.querySelectorAll('.opening-heading-animate');
+    if (headingEls.length) {
+      tl.fromTo(headingEls,
+        { opacity: 0, y: 80, filter: 'blur(12px)' },
+        { opacity: 1, y: 0, filter: 'blur(0px)', duration: 1.15, stagger: 0.12, ease: 'power4.out' }
+      );
+    }
+    // Animate all cards
+    const cardEls = document.querySelectorAll('.opening-card-animate');
+    if (cardEls.length) {
+      tl.fromTo(cardEls,
+        { opacity: 0, y: 60, filter: 'blur(10px)' },
+        { opacity: 1, y: 0, filter: 'blur(0px)', duration: 1.05, stagger: 0.13, ease: 'power3.out' },
+        '-=0.7'
+      );
+    }
+  }, [id]);
+
+
+
+
+  // ...handlers and variable declarations...
+
+
+  // ...handlers and variable declarations...
+
 
   const opening = chessOpenings[id] || chessOpenings['vienna-gambit'];
   const currentMoves = showCompleteGame ? opening.completeGame || opening.moves : opening.moves;
   const isCompleteGame = showCompleteGame && opening.completeGame && opening.completeGame.length > 0;
+
+  // Autoplay effect: automatically advance moves if isAutoPlaying is true
+  useEffect(() => {
+    if (!isAutoPlaying) return;
+    if (currentMoveIndex >= currentMoves.length - 1) {
+      setIsAutoPlaying(false);
+      return;
+    }
+    const timer = setTimeout(() => {
+      setCurrentMoveIndex(prev => prev + 1);
+    }, 1200);
+    return () => clearTimeout(timer);
+  }, [isAutoPlaying, currentMoveIndex, currentMoves.length]);
 
 
   // Handlers for controls
