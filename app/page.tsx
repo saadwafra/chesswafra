@@ -58,21 +58,47 @@ function AnimatedChessBackground() {
       }}
     >
       {/* 3D Tilted Chessboard with camera animation */}
-      <div style={{
-        width: 400,
-        height: 400,
-        maxWidth: '80vw',
-        maxHeight: '80vw',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        boxShadow: '0 0 80px 0 #fff2',
-        borderRadius: 16,
-        background: 'rgba(30,30,40,0.18)',
-        backdropFilter: 'blur(2px)',
-        margin: '0 auto',
-      }}>
-        <ChessBoard moves={animatedMoves} />
+      <div
+        style={{
+          perspective: '1400px',
+          width: 520,
+          height: 520,
+          maxWidth: '95vw',
+          maxHeight: '95vw',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          margin: '0 auto',
+        }}
+      >
+        <div
+          className="tilted-chessboard-anim"
+          style={{
+            width: 500,
+            height: 500,
+            borderRadius: 20,
+            background: 'rgba(30,30,40,0.18)',
+            boxShadow: '0 0 100px 0 #fff2',
+            backdropFilter: 'blur(2px)',
+            transform: 'rotateX(24deg) rotateZ(-18deg)',
+            overflow: 'hidden',
+            willChange: 'transform',
+          }}
+        >
+          <ChessBoard moves={animatedMoves} />
+        </div>
+        <style>{`
+          .tilted-chessboard-anim {
+            animation: tiltWobble 7s ease-in-out infinite alternate;
+          }
+          @keyframes tiltWobble {
+            0% { transform: rotateX(24deg) rotateZ(-18deg) scale(1); }
+            20% { transform: rotateX(28deg) rotateZ(-16deg) scale(1.03); }
+            50% { transform: rotateX(22deg) rotateZ(-20deg) scale(1.01); }
+            80% { transform: rotateX(26deg) rotateZ(-15deg) scale(1.04); }
+            100% { transform: rotateX(24deg) rotateZ(-18deg) scale(1); }
+          }
+        `}</style>
       </div>
       {/* Bishop and Knight float relative to hero section, not the board */}
       {Bishop}

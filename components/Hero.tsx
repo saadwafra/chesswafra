@@ -32,8 +32,8 @@ export function Hero() {
               </Button>
             </Link>
             <Link href="/plans">
-              <Button size="lg" variant="outline" className="border-white/20 text-white hover:bg-white/10 text-lg px-8 py-4">
-                <Crown className="mr-2 h-5 w-5" />
+              <Button size="lg" variant="outline" className="border-amber-400/70 text-amber-300 bg-zinc-900/70 hover:bg-amber-400/10 hover:text-amber-400 text-lg px-8 py-4 shadow-md">
+                <Crown className="mr-2 h-5 w-5 text-amber-400" />
                 View Plans
               </Button>
             </Link>

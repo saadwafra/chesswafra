@@ -74,6 +74,7 @@ export default function Plans() {
     }
   ];
 
+  const [selected, setSelected] = useState<number | null>(null);
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
       <Navbar />
@@ -129,11 +130,18 @@ export default function Plans() {
               return (
                 <Card
                   key={plan.name}
-                  className={`relative overflow-hidden transition-all duration-300 hover:scale-105 ${
-                    plan.popular
-                      ? 'bg-gradient-to-br from-amber-500/20 to-orange-500/20 border-amber-500/50 ring-2 ring-amber-500/50'
-                      : 'bg-white/5 backdrop-blur-sm border-white/10 hover:bg-white/10'
-                  }`}
+                  tabIndex={0}
+                  onClick={() => setSelected(index)}
+                  onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') setSelected(index); }}
+                  className={`relative overflow-hidden transition-all duration-300 cursor-pointer focus:outline-none hover:scale-105
+                    ${plan.popular
+                      ? `bg-gradient-to-br from-zinc-800/90 to-zinc-900/90 border-amber-700/40 ring-2 ring-amber-700/40 text-amber-200
+                          ${selected === index ? 'scale-105 shadow-2xl border-amber-700 ring-4 ring-amber-700' : ''}`
+                      : `bg-zinc-900/90 border-zinc-700/60 hover:bg-amber-900/20 shadow-lg text-amber-200
+                          ${selected === index ? 'border-amber-700 bg-amber-950/80 scale-105 shadow-2xl' : ''}`
+                    }`
+                  }
+                  aria-pressed={selected === index}
                 >
                   {plan.popular && (
                     <div className="absolute top-0 left-0 right-0">
@@ -143,7 +151,7 @@ export default function Plans() {
                     </div>
                   )}
 
-                  <CardHeader className={`${plan.popular ? 'pt-12' : 'pt-6'}`}>
+                    <CardHeader className={`${plan.popular ? 'pt-12' : 'pt-6'} ${plan.popular ? 'text-amber-200' : ''}`}>
                     <div className="flex items-center justify-center mb-4">
                       <div className={`w-16 h-16 rounded-full flex items-center justify-center ${
                         plan.popular ? 'bg-amber-500/30' : 'bg-white/10'
@@ -154,7 +162,7 @@ export default function Plans() {
                       </div>
                     </div>
                     
-                    <CardTitle className="text-2xl font-bold text-white text-center">
+                    <CardTitle className={`text-2xl font-bold text-center ${plan.popular ? 'text-amber-200' : 'text-amber-200'}`}>
                       {plan.name}
                     </CardTitle>
                     
@@ -200,8 +208,8 @@ export default function Plans() {
                       <Button 
                         className={`w-full py-3 text-lg font-medium transition-all duration-300 ${
                           plan.popular
-                            ? 'bg-amber-500 hover:bg-amber-600 text-black'
-                            : 'bg-white/10 hover:bg-white/20 text-white border border-white/20'
+                            ? 'bg-amber-800/80 hover:bg-amber-700/80 text-amber-100 border border-amber-700/40'
+                            : 'bg-zinc-800/80 hover:bg-amber-900/40 text-amber-200 border border-zinc-700/60'
                         }`}
                       >
                         {plan.cta}
