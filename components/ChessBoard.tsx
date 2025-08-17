@@ -1,11 +1,13 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
+import { Chess } from 'chess.js';
 
 type PieceType = 'K' | 'Q' | 'R' | 'B' | 'N' | 'P' | 'k' | 'q' | 'r' | 'b' | 'n' | 'p' | null;
 
 interface ChessBoardProps {
-  moves: Array<{ move: string; notation: string; explanation: string }>; 
+  moves: Array<{ move: string; notation: string; explanation: string; why?: string }>; 
+  why?: string; // Optional property to explain the move
   expectedMove?: { from: [number, number], to: [number, number] };
   showHint?: boolean;
   hintText?: string; // legacy, for compatibility
@@ -14,16 +16,18 @@ interface ChessBoardProps {
   allowUserMove?: boolean;
 }
 
-const getInitialBoard = (): PieceType[][] => [
-  ['r', 'n', 'b', 'q', 'k', 'b', 'n', 'r'],
-  ['p', 'p', 'p', 'p', 'p', 'p', 'p', 'p'],
-  [null, null, null, null, null, null, null, null],
-  [null, null, null, null, null, null, null, null],
-  [null, null, null, null, null, null, null, null],
-  [null, null, null, null, null, null, null, null],
-  ['P', 'P', 'P', 'P', 'P', 'P', 'P', 'P'],
-  ['R', 'N', 'B', 'Q', 'K', 'B', 'N', 'R']
-];
+
+// Convert chess.js board to PieceType[][]
+const chessJsToBoard = (chess: Chess): PieceType[][] => {
+  const board = chess.board();
+  return board.map(row =>
+    row.map(cell => {
+      if (!cell) return null;
+      // chess.js uses lowercase for black, uppercase for white
+      return cell.color === 'w' ? cell.type.toUpperCase() : cell.type.toLowerCase();
+    })
+  ) as PieceType[][];
+};
 
 const pieceSymbols: Record<string, string> = {
   'K': '♔', 'Q': '♕', 'R': '♖', 'B': '♗', 'N': '♘', 'P': '♙',
@@ -63,26 +67,7 @@ const parseMove = (move: string, board: PieceType[][]): { from: [number, number]
     const file = cleanMove.charCodeAt(0) - 97; // a=0, b=1, etc.
     const rank = 8 - parseInt(cleanMove[1]); // 8=0, 7=1, etc.
     
-    // Find the pawn that can move to this square
-    const isWhiteMove = getCurrentPlayer(board) === 'white';
-    const pawnSymbol = isWhiteMove ? 'P' : 'p';
-    
-    // Check for pawn move from one or two squares back
-    if (isWhiteMove) {
-      if (rank < 7 && board[rank + 1][file] === 'P') {
-        return { from: [rank + 1, file], to: [rank, file], piece: 'P' };
-      }
-      if (rank === 4 && board[6][file] === 'P' && board[5][file] === null) {
-        return { from: [6, file], to: [rank, file], piece: 'P' };
-      }
-    } else {
-      if (rank > 0 && board[rank - 1][file] === 'p') {
-        return { from: [rank - 1, file], to: [rank, file], piece: 'p' };
-      }
-      if (rank === 3 && board[1][file] === 'p' && board[2][file] === null) {
-        return { from: [1, file], to: [rank, file], piece: 'p' };
-      }
-    }
+  // Legacy logic, now unused with chess.js
   }
   
   // Handle pawn captures
@@ -91,14 +76,7 @@ const parseMove = (move: string, board: PieceType[][]): { from: [number, number]
     const toFile = cleanMove.charCodeAt(2) - 97;
     const toRank = 8 - parseInt(cleanMove[3]);
     
-    const isWhiteMove = getCurrentPlayer(board) === 'white';
-    const pawnSymbol = isWhiteMove ? 'P' : 'p';
-    const fromRank = isWhiteMove ? toRank + 1 : toRank - 1;
-    
-    if (board[fromRank] && board[fromRank][fromFile] === pawnSymbol) {
-      const captured = board[toRank][toFile];
-      return { from: [fromRank, fromFile], to: [toRank, toFile], piece: pawnSymbol, captured };
-    }
+  // Legacy logic, now unused with chess.js
   }
   
   // Handle piece moves (e.g., Nf3, Bb5, etc.)
@@ -112,11 +90,10 @@ const parseMove = (move: string, board: PieceType[][]): { from: [number, number]
     const toFile = destination.charCodeAt(0) - 97;
     const toRank = 8 - parseInt(destination[1]);
     
-    const isWhiteMove = getCurrentPlayer(board) === 'white';
-  const piece = isWhiteMove ? pieceType : (pieceType ? pieceType.toLowerCase() as PieceType : null);
-    
-    // Find all pieces of this type that can move to the destination
-    const candidates = findPieceCandidates(board, piece, toRank, toFile);
+  // Legacy logic, now unused with chess.js
+  const piece = pieceType;
+  // Find all pieces of this type that can move to the destination
+  const candidates = findPieceCandidates(board, piece, toRank, toFile);
     
     if (candidates.length === 1) {
       const captured = isCapture ? board[toRank][toFile] : undefined;
@@ -155,21 +132,7 @@ const findPiece = (board: PieceType[][], piece: PieceType): [number, number] | n
   return null;
 };
 
-const getCurrentPlayer = (board: PieceType[][]): 'white' | 'black' => {
-  // Simple heuristic: count moves made by looking at initial position changes
-  let moveCount = 0;
-  const initial = getInitialBoard();
-  
-  for (let rank = 0; rank < 8; rank++) {
-    for (let file = 0; file < 8; file++) {
-      if (board[rank][file] !== initial[rank][file]) {
-        moveCount++;
-      }
-    }
-  }
-  
-  return moveCount % 2 === 0 ? 'white' : 'black';
-};
+// getCurrentPlayer is no longer needed with chess.js
 
 const findPieceCandidates = (board: PieceType[][], piece: PieceType, toRank: number, toFile: number): [number, number][] => {
   const candidates: [number, number][] = [];
@@ -257,36 +220,24 @@ const isPathClear = (board: PieceType[][], fromRank: number, fromFile: number, t
   return true;
 };
 export function ChessBoard({ moves, expectedMove, showHint, hintText, explanationText, onUserMove, allowUserMove }: ChessBoardProps) {
-  const [board, setBoard] = useState<PieceType[][]>(getInitialBoard());
+  const [board, setBoard] = useState<PieceType[][]>(chessJsToBoard(new Chess()));
   const [lastMove, setLastMove] = useState<{from: [number, number], to: [number, number]} | null>(null);
   const [selected, setSelected] = useState<[number, number] | null>(null);
+
   useEffect(() => {
-    // Reset to initial position
-    let currentBoard = getInitialBoard();
-    let currentLastMove = null;
-    // Apply each move
+    const chess = new Chess();
+    let lastMoveSquares = null;
     for (const moveObj of moves) {
-      const moveResult = parseMove(moveObj.move, currentBoard);
-      if (moveResult) {
-        const newBoard = currentBoard.map(row => [...row]);
-        if (moveObj.move === 'O-O' || moveObj.move === '0-0') {
-          if (moveResult.piece === 'K') {
-            newBoard[7][4] = null; newBoard[7][6] = 'K'; newBoard[7][7] = null; newBoard[7][5] = 'R';
-          } else { newBoard[0][4] = null; newBoard[0][6] = 'k'; newBoard[0][7] = null; newBoard[0][5] = 'r'; }
-        } else if (moveObj.move === 'O-O-O' || moveObj.move === '0-0-0') {
-          if (moveResult.piece === 'K') {
-            newBoard[7][4] = null; newBoard[7][2] = 'K'; newBoard[7][0] = null; newBoard[7][3] = 'R';
-          } else { newBoard[0][4] = null; newBoard[0][2] = 'k'; newBoard[0][0] = null; newBoard[0][3] = 'r'; }
-        } else {
-          newBoard[moveResult.from[0]][moveResult.from[1]] = null;
-          newBoard[moveResult.to[0]][moveResult.to[1]] = moveResult.piece;
-        }
-        currentBoard = newBoard;
-        currentLastMove = { from: moveResult.from, to: moveResult.to };
+      const move = chess.move(moveObj.move);
+      if (move) {
+        lastMoveSquares = {
+          from: [8 - parseInt(move.from[1]), move.from.charCodeAt(0) - 97] as [number, number],
+          to: [8 - parseInt(move.to[1]), move.to.charCodeAt(0) - 97] as [number, number],
+        };
       }
     }
-    setBoard(currentBoard);
-    setLastMove(currentLastMove);
+    setBoard(chessJsToBoard(chess));
+    setLastMove(lastMoveSquares as { from: [number, number]; to: [number, number] } | null);
     setSelected(null);
   }, [moves]);
 
@@ -332,13 +283,27 @@ export function ChessBoard({ moves, expectedMove, showHint, hintText, explanatio
   return (
     <div className="flex justify-center">
       <div className="relative">
-        <div className="grid grid-cols-8 gap-0 border-2 border-amber-700/70 rounded-xl overflow-hidden shadow-2xl bg-gradient-to-br from-[#b58863] to-[#f0d9b5]" style={{boxShadow: '0 8px 32px 0 rgba(30,20,10,0.25)'}}>
+        <div
+          className={`grid grid-cols-8 gap-0 border-2 border-amber-700/70 rounded-xl overflow-hidden shadow-2xl bg-gradient-to-br from-[#b58863] to-[#f0d9b5] board-3d ${lastMove && board[lastMove.to[0]][lastMove.to[1]] === null ? '' : 'board-3d-tilt'}`}
+          style={{
+            boxShadow: '0 12px 40px 0 rgba(30,20,10,0.30), 0 1.5px 0 #fff8',
+            perspective: '900px',
+            transformStyle: 'preserve-3d',
+          }}
+        >
           {board.map((row, rowIndex) =>
             row.map((piece, colIndex) => {
               const dark = isDark(rowIndex, colIndex);
               const highlight = isHighlighted(rowIndex, colIndex);
-              // Render explanation bubble above the destination square (always-on)
+              // Enhanced: Render a beautiful bubble pop-up above the destination square with move info
               const showExplanationBubble = explanationText && expectedMove && expectedMove.to[0] === rowIndex && expectedMove.to[1] === colIndex;
+              // Find move object for this square (for bubble info)
+              let moveObj = null;
+              if (showExplanationBubble && moves && moves.length > 0) {
+                moveObj = moves[moves.length - 1];
+              }
+              // Animate capture: if this is the destination of a capture, add a 3d/zoom effect
+              const isCapture = lastMove && lastMove.to[0] === rowIndex && lastMove.to[1] === colIndex && board[rowIndex][colIndex] !== null && moves && moves.length > 0 && /x/.test(moves[moves.length-1].notation || moves[moves.length-1].move);
               return (
                 <div
                   key={`${rowIndex}-${colIndex}`}
@@ -349,30 +314,44 @@ export function ChessBoard({ moves, expectedMove, showHint, hintText, explanatio
                       ? 'bg-gradient-to-br from-[#7a4c1e] to-[#4e2e0e]'
                       : 'bg-gradient-to-br from-[#f0d9b5] to-[#e6cfa7]'}
                     ${highlight
-                      ? 'ring-2 ring-amber-400 ring-inset bg-yellow-300/60'
+                      ? 'ring-4 ring-amber-400 ring-inset bg-yellow-100/80 shadow-amber-300/40 shadow-lg'
                       : ''}
+                    ${isCapture ? 'piece-3d-capture' : ''}
                   `}
                   style={{
                     boxShadow: dark ? 'inset 0 0 8px 0 #2d1a07' : 'inset 0 0 6px 0 #fff8',
                   }}
                   onClick={() => handleTileClick(rowIndex, colIndex)}
                 >
-                  {showExplanationBubble && (
-                    <div className="absolute -top-10 left-1/2 -translate-x-1/2 z-30 min-w-[180px] max-w-[260px] bg-gradient-to-br from-amber-100 to-yellow-50 text-amber-900 text-sm font-bold px-4 py-2 rounded-2xl shadow-2xl border-2 border-amber-400 animate-fade-in flex items-center gap-2">
-                      <span className="inline-block align-middle">💡</span>
-                      <span className="inline-block align-middle">{explanationText}</span>
+                  {showExplanationBubble && moveObj && (
+                    <div className="absolute -top-24 left-1/2 -translate-x-1/2 z-30 min-w-[220px] max-w-[320px] bg-gradient-to-br from-white to-amber-100 text-amber-900 text-base font-semibold px-5 py-4 rounded-2xl shadow-2xl border-2 border-amber-400 animate-fade-in flex flex-col gap-2">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="text-2xl">♟️</span>
+                        <span className="font-bold text-lg text-amber-700">{moveObj.notation || moveObj.move}</span>
+                        <span className="ml-auto text-xs bg-amber-200 text-amber-800 px-2 py-1 rounded-full">Move</span>
+                      </div>
+                      <div className="text-amber-900/90 text-sm mb-1">{moveObj.explanation}</div>
+                      <div className="bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 text-xs text-amber-800 font-medium">
+                        <span className="font-bold">Why is this useful?</span><br/>
+                        {moveObj.why || 'This move helps you control the center, develop your pieces, or create a tactical threat. (Add more details in your data for custom explanations!)'}
+                      </div>
                     </div>
                   )}
                   {piece && (
                     <span
                       className={`
-                        drop-shadow-lg transition-all duration-200 hover:scale-110
+                        drop-shadow-2xl transition-all duration-500 hover:scale-110
                         ${piece === piece.toUpperCase() ? 'text-white' : 'text-black'}
+                        ${isCapture ? 'piece-3d-animate' : ''}
+                        ${highlight ? 'piece-3d-move' : ''}
                       `}
                       style={{
                         textShadow: piece === piece?.toUpperCase()
-                          ? '0 2px 8px #000a, 0 1px 0 #fff8'
-                          : '0 2px 8px #fff8, 0 1px 0 #000a',
+                          ? '0 4px 16px #000a, 0 2px 0 #fff8'
+                          : '0 4px 16px #fff8, 0 2px 0 #000a',
+                        filter: highlight ? 'drop-shadow(0 0 16px #fbbf24) brightness(1.15)' : '',
+                        transform: `${highlight ? 'scale(1.12) rotateX(12deg) rotateY(-8deg)' : ''} ${isCapture ? 'scale(1.18) rotateZ(-8deg)' : ''}`,
+                        transition: 'all 0.5s cubic-bezier(.4,2,.6,1)',
                       }}
                     >
                       {pieceSymbols[piece]}
@@ -391,6 +370,14 @@ export function ChessBoard({ moves, expectedMove, showHint, hintText, explanatio
                   )}
                 </div>
               );
+// CSS to add to your global stylesheet:
+// .board-3d { transition: box-shadow 0.5s, transform 0.7s cubic-bezier(.4,2,.6,1); }
+// .board-3d-tilt { transform: rotateX(14deg) rotateY(-8deg) scale(1.04); box-shadow: 0 24px 60px 0 #fbbf24aa, 0 1.5px 0 #fff8; }
+// .piece-3d-move { filter: drop-shadow(0 0 16px #fbbf24) brightness(1.15); }
+// .piece-3d-animate { animation: piece3dMove 0.6s cubic-bezier(.4,2,.6,1) 1; }
+// .piece-3d-capture { animation: piece3dCapture 0.7s cubic-bezier(.4,2,.6,1) 1; }
+// @keyframes piece3dMove { 0% { transform: scale(1) rotateX(0) rotateY(0); } 60% { transform: scale(1.18) rotateX(16deg) rotateY(-12deg); } 100% { transform: scale(1.12) rotateX(12deg) rotateY(-8deg); } }
+// @keyframes piece3dCapture { 0% { filter: none; transform: scale(1) rotateZ(0); } 60% { filter: drop-shadow(0 0 32px #fbbf24) brightness(1.5); transform: scale(1.25) rotateZ(-16deg); } 100% { filter: none; transform: scale(1.18) rotateZ(-8deg); } }
             })
           )}
         </div>
@@ -398,3 +385,6 @@ export function ChessBoard({ moves, expectedMove, showHint, hintText, explanatio
     </div>
   );
 }
+
+// Install the necessary packages:
+// npm install three@0.150.1 @react-three/fiber@8.13.7 @react-three/drei@9.56.15 --save

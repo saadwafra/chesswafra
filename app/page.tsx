@@ -5,7 +5,8 @@ import { Navbar } from '@/components/Navbar';
 import { Hero } from '@/components/Hero';
 import { FeaturedGames } from '@/components/FeaturedGames';
 import { LearningStreakSidebar } from '@/components/LearningStreakSidebar';
-import { ChessBoard } from '@/components/ChessBoard';
+import { ChessBoard } from '@/components/ChessBoard'; // Keep this line for reference
+import { ThreeChessBoard } from '@/components/ThreeChessBoard';
 
 // Sample moves for animation (e4, e5, Nf3, Nc6, Bb5)
 const animatedMoves = [
@@ -68,7 +69,7 @@ function AnimatedChessBackground() {
         justifyContent: 'center',
         boxShadow: '0 0 80px 0 #fff2',
       }}>
-        <ChessBoard moves={animatedMoves} />
+  <ThreeChessBoard />
         {/* Animated 3D pawn stays on the board */}
         {Pawn}
       </div>
