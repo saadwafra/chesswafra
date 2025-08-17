@@ -345,27 +345,22 @@ export default function OpeningDetailClient({ id }: OpeningDetailClientProps) {
                   </>
                 )}
               </div>
-              {/* Manual move input for complete game mode */}
+              {/* Only show Play Next Move button, no info beneath */}
               {isCompleteGame && !victory && (
-                <div className="flex flex-col items-center gap-3 mt-6">
-                  <div className="flex gap-2 items-center">
-                    <input
-                      type="text"
-                      value={userInput}
-                      onChange={e => setUserInput(e.target.value)}
-                      placeholder={`Enter your move (e.g. ${currentMoves[currentMoveIndex]?.move})`}
-                      className="px-3 py-2 rounded-md bg-zinc-900 text-amber-200 border border-amber-700/40 focus:outline-none focus:ring-2 focus:ring-amber-400/80"
-                      onKeyDown={e => { if (e.key === 'Enter') handleUserMove(); }}
-                      disabled={showExplanation}
-                    />
-                    <Button onClick={handleUserMove} disabled={showExplanation} className="bg-amber-600 text-zinc-900 hover:bg-amber-700 hover:text-white border border-amber-700/60 px-4 py-2 rounded-md font-semibold">Submit</Button>
-                  </div>
-                  {showHint && (
-                    <div className="text-amber-300 bg-zinc-800 border border-amber-700/40 rounded-md px-3 py-2 mt-1 animate-pulse">Hint: {currentMoves[currentMoveIndex]?.move}</div>
-                  )}
-                  {showExplanation && (
-                    <div className="text-amber-100 bg-zinc-900 border border-amber-700/40 rounded-md px-3 py-2 mt-1 shadow-lg animate-fade-in">{currentMoves[currentMoveIndex]?.explanation}</div>
-                  )}
+                <div className="flex flex-col items-center mt-2 mb-4">
+                  <Button
+                    className="bg-amber-600 text-zinc-900 hover:bg-amber-700 hover:text-white border border-amber-700/60 px-6 py-2 rounded-md font-semibold"
+                    disabled={currentMoveIndex >= currentMoves.length - 1}
+                    onClick={() => {
+                      setShowExplanation(true);
+                      setTimeout(() => {
+                        setShowExplanation(false);
+                        setCurrentMoveIndex(prev => prev + 1);
+                      }, 1200);
+                    }}
+                  >
+                    Play Next Move
+                  </Button>
                 </div>
               )}
               {/* Victory popup */}

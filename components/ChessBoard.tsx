@@ -295,13 +295,7 @@ export function ChessBoard({ moves, expectedMove, showHint, hintText, explanatio
             row.map((piece, colIndex) => {
               const dark = isDark(rowIndex, colIndex);
               const highlight = isHighlighted(rowIndex, colIndex);
-              // Enhanced: Render a beautiful bubble pop-up above the destination square with move info
-              const showExplanationBubble = explanationText && expectedMove && expectedMove.to[0] === rowIndex && expectedMove.to[1] === colIndex;
-              // Find move object for this square (for bubble info)
-              let moveObj = null;
-              if (showExplanationBubble && moves && moves.length > 0) {
-                moveObj = moves[moves.length - 1];
-              }
+              // Bubble pop-up removed
               // Animate capture: if this is the destination of a capture, add a 3d/zoom effect
               const isCapture = lastMove && lastMove.to[0] === rowIndex && lastMove.to[1] === colIndex && board[rowIndex][colIndex] !== null && moves && moves.length > 0 && /x/.test(moves[moves.length-1].notation || moves[moves.length-1].move);
               return (
@@ -323,20 +317,7 @@ export function ChessBoard({ moves, expectedMove, showHint, hintText, explanatio
                   }}
                   onClick={() => handleTileClick(rowIndex, colIndex)}
                 >
-                  {showExplanationBubble && moveObj && (
-                    <div className="absolute -top-24 left-1/2 -translate-x-1/2 z-30 min-w-[220px] max-w-[320px] bg-gradient-to-br from-white to-amber-100 text-amber-900 text-base font-semibold px-5 py-4 rounded-2xl shadow-2xl border-2 border-amber-400 animate-fade-in flex flex-col gap-2">
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className="text-2xl">♟️</span>
-                        <span className="font-bold text-lg text-amber-700">{moveObj.notation || moveObj.move}</span>
-                        <span className="ml-auto text-xs bg-amber-200 text-amber-800 px-2 py-1 rounded-full">Move</span>
-                      </div>
-                      <div className="text-amber-900/90 text-sm mb-1">{moveObj.explanation}</div>
-                      <div className="bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 text-xs text-amber-800 font-medium">
-                        <span className="font-bold">Why is this useful?</span><br/>
-                        {moveObj.why || 'This move helps you control the center, develop your pieces, or create a tactical threat. (Add more details in your data for custom explanations!)'}
-                      </div>
-                    </div>
-                  )}
+                  {/* Bubble pop-up removed */}
                   {piece && (
                     <span
                       className={`
