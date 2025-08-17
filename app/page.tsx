@@ -20,7 +20,7 @@ const animatedMoves = [
 import React, { useEffect, useRef, useState } from 'react';
 function AnimatedChessBackground() {
   const [inView, setInView] = useState(true);
-  const bgRef = useRef(null);
+  const bgRef = useRef<HTMLDivElement>(null);
   // SVGs for 3D-looking chess pieces (simple, stylized)
   const Pawn = (
     <svg width="40" height="40" viewBox="0 0 40 40" fill="none" className="absolute animate-pawn3d" style={{left: '10%', top: '60%'}}><ellipse cx="20" cy="32" rx="10" ry="5" fill="#fff" opacity="0.15"/><circle cx="20" cy="18" r="7" fill="#fff" opacity="0.18"/><rect x="16" y="25" width="8" height="8" rx="4" fill="#fff" opacity="0.13"/></svg>
