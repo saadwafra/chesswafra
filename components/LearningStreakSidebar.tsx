@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Progress } from '@/components/ui/progress';
+// import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { Flame, Target, Trophy, Clock, X, Calendar, ChevronRight } from 'lucide-react';
 
@@ -69,7 +69,7 @@ export function LearningStreakSidebar() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <Progress value={80} className="mb-2" />
+              {/* <Progress value={80} className="mb-2" /> */}
               <p className="text-white/70 text-sm">
                 3 more problems to complete today's goal
               </p>
