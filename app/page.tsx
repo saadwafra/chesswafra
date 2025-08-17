@@ -5,8 +5,7 @@ import { Navbar } from '@/components/Navbar';
 import { Hero } from '@/components/Hero';
 import { FeaturedGames } from '@/components/FeaturedGames';
 import { LearningStreakSidebar } from '@/components/LearningStreakSidebar';
-import { ChessBoard } from '@/components/ChessBoard'; // Keep this line for reference
-import { ThreeChessBoard } from '@/components/ThreeChessBoard';
+import { ChessBoard } from '@/components/ChessBoard';
 
 // Sample moves for animation (e4, e5, Nf3, Nc6, Bb5)
 const animatedMoves = [
@@ -59,20 +58,8 @@ function AnimatedChessBackground() {
       }}
     >
       {/* 3D Tilted Chessboard with camera animation */}
-      <div className="chessboard-3d-anim" style={{
-        width: 600,
-        height: 600,
-        maxWidth: '80vw',
-        maxHeight: '80vw',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        boxShadow: '0 0 80px 0 #fff2',
-      }}>
-  <ThreeChessBoard />
-        {/* Animated 3D pawn stays on the board */}
-        {Pawn}
-      </div>
+  {/* Optionally, you can restore a 2D ChessBoard here or remove the board entirely */}
+  {/* <ChessBoard moves={animatedMoves} /> */}
       {/* Bishop and Knight float relative to hero section, not the board */}
       {Bishop}
       {Knight}
